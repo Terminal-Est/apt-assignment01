@@ -43,10 +43,15 @@ private:
     /*                                           */
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
-    
+
+    // A list of reachable nodes.
+    NodeList* reachableNodes;
+
+    // A list of nodes that form a path to the goal.
+    NodeList* pathList;
+
+    // Find the maze start/end coordinates
+    Coord getStartEndCoordinates(Env env, char loc);
 };
-
-
-
 
 #endif //COSC_ASSIGN_ONE_PATHSOLVER

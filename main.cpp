@@ -27,9 +27,10 @@ int main(int argc, char** argv){
     // COMMENT THESE OUT BEFORE YOU SUBMIT!!!
     std::cout << "TESTING - COMMENT THE OUT TESTING BEFORE YOU SUBMIT!!!" << std::endl;
     testNode();
-    testNodeList();
+    //testNodeList();
     std::cout << "DONE TESTING" << std::endl << std::endl;
 
+    /**
     // Load Environment 
     Env env;
     readEnvStdin(env);
@@ -51,7 +52,7 @@ int main(int argc, char** argv){
     delete pathSolver;
     delete exploredPositions;
     delete solution;
-
+    */
 }
 
 void readEnvStdin(Env env){
