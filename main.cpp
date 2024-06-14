@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <cstring>
 
 #include "Types.h"
 #include "Node.h"
@@ -25,12 +26,11 @@ int main(int argc, char** argv){
     // AS YOU WORK ON MILESTONE 2. YOU CAN UPDATE THEM YOURSELF
     // AS YOU GO ALONG.
     // COMMENT THESE OUT BEFORE YOU SUBMIT!!!
-    std::cout << "TESTING - COMMENT THE OUT TESTING BEFORE YOU SUBMIT!!!" << std::endl;
-    testNode();
+    //std::cout << "TESTING - COMMENT THE OUT TESTING BEFORE YOU SUBMIT!!!" << std::endl;
+    //testNode();
     //testNodeList();
-    std::cout << "DONE TESTING" << std::endl << std::endl;
+    std::cout << "ROBOT PATHING ALGORITHM" << std::endl << std::endl;
 
-    /**
     // Load Environment 
     Env env;
     readEnvStdin(env);
@@ -40,6 +40,7 @@ int main(int argc, char** argv){
     PathSolver* pathSolver = new PathSolver();
     pathSolver->forwardSearch(env);
 
+    /**
     NodeList* exploredPositions = nullptr;
     exploredPositions = pathSolver->getNodesExplored();
 
@@ -56,7 +57,24 @@ int main(int argc, char** argv){
 }
 
 void readEnvStdin(Env env){
-    //TODO 
+
+    std::ifstream file("sampleTest/sample01.env");
+    std::string line = "";
+    int y = 0;
+
+    while (std::getline(file, line)) {
+        
+        char chrLnArr[ENV_DIM + 1];
+        std::strcpy(chrLnArr, line.c_str());
+
+        for (int x = 0; x < (int)sizeof(chrLnArr) - 1; x++) {
+       
+            env[x][y] = chrLnArr[x];
+            std::cout << env[x][y];
+        }
+        std::cout << std::endl;
+        y++;
+    }
 }
 
 void printEnvStdout(Env env, NodeList* solution) {

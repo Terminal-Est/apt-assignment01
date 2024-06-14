@@ -14,6 +14,10 @@ void PathSolver::forwardSearch(Env env){
 
     Coord start = getStartEndCoordinates(env, SYMBOL_START);
     Coord end = getStartEndCoordinates(env, SYMBOL_GOAL);
+
+    std::cout << std::endl;
+    std::cout << "Start Coordinates: " << start.x << "," << start.y << std::endl;
+    std::cout << "Goal Coordinates: " << end.x << "," << end.y << std::endl;
 }
 
 NodeList* PathSolver::getNodesExplored(){
@@ -24,7 +28,7 @@ NodeList* PathSolver::getPath(Env env){
     return pathList;
 }
 
-Coord PathSolver::getStartEndCoordinates(Env env, char loc) {
+Coord PathSolver::getStartEndCoordinates(Env env, char loc){
 
     int xSize = ENV_DIM;
     int ySize = ENV_DIM;
@@ -44,4 +48,3 @@ Coord PathSolver::getStartEndCoordinates(Env env, char loc) {
 
     return node;
 }
-//-----------------------------
