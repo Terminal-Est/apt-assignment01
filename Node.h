@@ -44,6 +44,7 @@ private:
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
 
+    char direction_moved;
 };
 
 #endif //COSC_ASSIGN_ONE_NODE

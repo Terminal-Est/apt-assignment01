@@ -40,12 +40,13 @@ private:
     // You may assume a fixed size for M1, M2, M3
     Node* nodes[NODE_LIST_ARRAY_MAX_SIZE];
 
-    // Number of nodes currently in the NodeList
+     // Number of nodes currently in the NodeList
     int length;
 
     /*                                           */
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
+    int* lenPtr = &length;
 };
 
 #endif //COSC_ASSIGN_ONE_NODELIST

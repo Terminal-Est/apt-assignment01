@@ -49,11 +49,11 @@ int main(int argc, char** argv){
     NodeList* solution = pathSolver->getPath(env);
 
     printEnvStdout(env, solution);
-
-    delete pathSolver;
-    delete exploredPositions;
-    delete solution;
     */
+    delete pathSolver;
+    //delete exploredPositions;
+    //delete solution;
+   
 }
 
 void readEnvStdin(Env env){

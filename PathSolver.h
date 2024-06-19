@@ -45,13 +45,28 @@ private:
     /*                                           */
 
     // A list of reachable nodes.
-    NodeList* reachableNodes;
+    NodeList* openList;
 
-    // A list of nodes that form a path to the goal.
-    NodeList* pathList;
+    // Find the coordinates of a maze charactirstic.
+    Coord getNodeParams(Env env, char loc);
 
-    // Find the maze start/end coordinates
-    Coord getStartEndCoordinates(Env env, char loc);
+    // Node that the robot is currently on.
+    Node* currentNode;
+
+    // Boolean to indicate if the goal is reached.
+    bool goalReached;
+
+    // Checks a node to see if it's open.
+    void popOpenList(Env env, int x, int y, Node* goalNode);
+
+    // checks a node against the closed list.
+    bool checkNodeClosed(int x, int y);
+
+    // Check for goal node.
+    void setGoalReached(Env env, int x, int y);
+
+    // Forward search algorithm.
+    void forwardSearchAlg(Env env, Node* strat, Node* goal);
 };
 
 #endif //COSC_ASSIGN_ONE_PATHSOLVER

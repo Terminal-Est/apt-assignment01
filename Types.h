@@ -15,6 +15,7 @@ typedef struct
 {
     int x;
     int y;
+    int dist;
 } Coord;
 
 #define SYMBOL_WALL     '='

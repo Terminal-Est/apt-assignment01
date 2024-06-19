@@ -6,7 +6,7 @@ NodeList::NodeList(){
 }
 
 NodeList::~NodeList(){
-    delete nodes;
+    //delete nodes;
 }
 
 NodeList::NodeList(NodeList& other){
