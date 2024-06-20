@@ -33,86 +33,6 @@ void PathSolver::forwardSearch(Env env){
     findGoal(env, startNode, goalNode);
 }
 
-NodeList* PathSolver::getNodesExplored(){
-    return nodesExplored;
-}
-
-Coord PathSolver::getNodeParams(Env env, char loc){
-
-    int xSize = ENV_DIM;
-    int ySize = ENV_DIM;
-    int dist = 0;
-    Coord node;
-
-    for (int x = 0; x <= xSize; x++) {
-
-        for (int y = 0; y <= ySize; y++) {
-
-            if (env[x][y] == loc) {
-
-                node.x = x;
-                node.y = y;
-            }
-        }
-    }
-
-    return node;
-}
-
-void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
-    
-    int ind = 0;
-    bool closed = false;
-    char envChar = env[x][y];
-
-    if (envChar == SYMBOL_GOAL) {
-
-        goalReached = true;
-
-        std::cout << "Conratulations, Goal Reached!" << std::endl;
-
-    } else {
-
-        closed = checkNodeClosed(x, y, currentNode);
-
-        if(envChar == SYMBOL_EMPTY && !closed) {
-            
-            int trav = currentNode->getDistanceTraveled() + 1;
-            Node* open = new Node(x, y, trav);
-            openList->addElement(open);
-        }
-    }
-}
-
-bool PathSolver::checkNodeClosed(int x, int y, Node* currentNode){
-
-    int ind = 0;
-    bool closed = false;
-
-    while (ind < nodesExplored->getLength()) {
-
-        Coord exist;
-
-        exist.x = nodesExplored->getNode(ind)->getRow();
-        exist.y = nodesExplored->getNode(ind)->getCol();
-
-        if (exist.x == x && exist.y == y) {
-
-            closed = true;
-        }
-
-        ind ++;
-    }
-
-    return closed;
-}
-
-void PathSolver::setGoalReached(Env env, int x, int y){
-    if (env[x][y] == SYMBOL_GOAL) {
-        goalReached = true;
-    }
-}
-
 void PathSolver::findGoal(Env env, Node* start, Node* goal){
     
     int x = 0;
@@ -145,6 +65,31 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
         std::cout << "Current node Y: " << currentNode->getCol() << std::endl;
         std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
         std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
+    }
+}
+
+void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
+    
+    int ind = 0;
+    bool closed = false;
+    char envChar = env[x][y];
+
+    if (envChar == SYMBOL_GOAL) {
+
+        goalReached = true;
+
+        std::cout << "Conratulations, Goal Reached!" << std::endl;
+
+    } else {
+
+        closed = checkNodeClosed(x, y, currentNode);
+
+        if(envChar == SYMBOL_EMPTY && !closed) {
+            
+            int trav = currentNode->getDistanceTraveled() + 1;
+            Node* open = new Node(x, y, trav);
+            openList->addElement(open);
+        }
     }
 }
 
@@ -201,3 +146,67 @@ Node* PathSolver::backTrack(Node* prevNode, Node* currentNode) {
 
     return currentNode; 
 }
+
+NodeList* PathSolver::getNodesExplored(){
+
+    NodeList* copy = new NodeList();
+
+    for (int i = 0; i < nodesExplored->getLength(); i++) {
+        Node* node = nodesExplored->getNode(i);
+        copy->addElement(node);
+    }
+
+    return copy;
+}
+
+Coord PathSolver::getNodeParams(Env env, char loc){
+
+    int xSize = ENV_DIM;
+    int ySize = ENV_DIM;
+    int dist = 0;
+    Coord node;
+
+    for (int x = 0; x <= xSize; x++) {
+
+        for (int y = 0; y <= ySize; y++) {
+
+            if (env[x][y] == loc) {
+
+                node.x = x;
+                node.y = y;
+            }
+        }
+    }
+
+    return node;
+}
+
+bool PathSolver::checkNodeClosed(int x, int y, Node* currentNode){
+
+    int ind = 0;
+    bool closed = false;
+
+    while (ind < nodesExplored->getLength()) {
+
+        Coord exist;
+
+        exist.x = nodesExplored->getNode(ind)->getRow();
+        exist.y = nodesExplored->getNode(ind)->getCol();
+
+        if (exist.x == x && exist.y == y) {
+
+            closed = true;
+        }
+
+        ind ++;
+    }
+
+    return closed;
+}
+
+void PathSolver::setGoalReached(Env env, int x, int y){
+    if (env[x][y] == SYMBOL_GOAL) {
+        goalReached = true;
+    }
+}
+
