@@ -30,7 +30,7 @@ void PathSolver::forwardSearch(Env env){
     std::cout << "Goal Coordinates: " << end.x << "," << end.y << std::endl;
     std::cout << "Distance to Goal: " << startNode->getEstimatedDist2Goal(goalNode) << std::endl;
 
-    forwardSearchAlg(env, startNode, goalNode);
+    findGoal(env, startNode, goalNode);
 }
 
 NodeList* PathSolver::getNodesExplored(){
@@ -59,28 +59,32 @@ Coord PathSolver::getNodeParams(Env env, char loc){
     return node;
 }
 
-void PathSolver::popOpenList(Env env, int x, int y, Node* startNode){
+void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
     
     int ind = 0;
-    bool explored = false;
+    bool closed = false;
     char envChar = env[x][y];
 
     if (envChar == SYMBOL_GOAL) {
 
         goalReached = true;
-    }
 
-    explored = checkNodeClosed(x, y);
+        std::cout << "Conratulations, Goal Reached!" << std::endl;
 
-    if(envChar == SYMBOL_EMPTY && !explored) {
-        
-        int trav = (x - startNode->getRow()) + (y - startNode->getCol());
-        Node* open = new Node(x, y, trav);
-        openList->addElement(open);
+    } else {
+
+        closed = checkNodeClosed(x, y, currentNode);
+
+        if(envChar == SYMBOL_EMPTY && !closed) {
+            
+            int trav = currentNode->getDistanceTraveled() + 1;
+            Node* open = new Node(x, y, trav);
+            openList->addElement(open);
+        }
     }
 }
 
-bool PathSolver::checkNodeClosed(int x, int y){
+bool PathSolver::checkNodeClosed(int x, int y, Node* currentNode){
 
     int ind = 0;
     bool closed = false;
@@ -109,40 +113,32 @@ void PathSolver::setGoalReached(Env env, int x, int y){
     }
 }
 
-void PathSolver::forwardSearchAlg(Env env, Node* start, Node* goal){
+void PathSolver::findGoal(Env env, Node* start, Node* goal){
     
     int x = 0;
     int y = 0;
-    int hold = 0;
-    int currentDist = 0;
+    Node* prevNode;
 
     while (!goalReached) {
+
+        prevNode = currentNode;
 
         x = currentNode->getRow();
         y = currentNode->getCol();
 
-        currentDist = currentNode->getEstimatedDist2Goal(goal);
+        // Robot looks around, adds open nodes to open list.
+        popOpenList(env, x + 1, y, currentNode);
+        popOpenList(env, x - 1, y, currentNode);
+        popOpenList(env, x, y + 1, currentNode);
+        popOpenList(env, x, y - 1, currentNode); 
 
-        //std::cout << "Current dist to Goal: " << currentDist << std::endl;
+        // Robot searches the open list and chooses a node to move to.
+        currentNode = forwardSearchAlg(currentNode, goal);
 
-        popOpenList(env, x + 1, y, start);
-        popOpenList(env, x - 1, y, start);
-        popOpenList(env, x, y + 1, start);
-        popOpenList(env, x, y - 1, start); 
-
-        for (int ind1 = 0; ind1 < openList->getLength(); ind1++) {
-            
-            hold = openList->getNode(ind1)->getEstimatedDist2Goal(goal);
-
-            for (int ind2 = 0; ind2 < openList->getLength(); ind2++) {
-
-                if (hold < openList->getNode(ind2)->getEstimatedDist2Goal(goal)) {
-
-                    currentNode = openList->getNode(ind2);
-                }
-            }
-        } 
-
+        // Robot back tracks if it encounters a dead end.
+        currentNode = backTrack(prevNode, currentNode);
+        
+        // Current node is added to the nodes the robot has explored.
         nodesExplored->addElement(currentNode);
 
         std::cout << "Current node X: " << currentNode->getRow() << std::endl;
@@ -150,4 +146,58 @@ void PathSolver::forwardSearchAlg(Env env, Node* start, Node* goal){
         std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
         std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
     }
+}
+
+Node* PathSolver::forwardSearchAlg(Node* currentNode, Node* goal){
+
+    int hold1 = 0;
+    int hold2 = 0;
+
+    for (int ind1 = 0; ind1 < openList->getLength(); ind1++) {
+            
+        hold1 = openList->getNode(ind1)->getEstimatedDist2Goal(goal);
+
+        for (int ind2 = 0; ind2 < openList->getLength(); ind2++) {
+
+            hold2 = openList->getNode(ind2)->getEstimatedDist2Goal(goal);
+
+            if (hold1 <= hold2) {
+
+                currentNode = openList->getNode(ind2);
+            }
+        }
+    }
+
+    return currentNode;
+}
+
+Node* PathSolver::backTrack(Node* prevNode, Node* currentNode) {
+
+    if (prevNode->getRow() == currentNode->getRow()
+        && prevNode->getCol() == currentNode->getCol() 
+        && !goalReached) {
+            
+        bool notExplored = true;
+        std::cout << "Dead end, backtracking...." << std::endl;
+        
+        for (int a = 0; a < openList->getLength(); a++) {
+
+            notExplored = true;
+
+            for (int b = 0; b < nodesExplored->getLength(); b++) {
+
+                if (openList->getNode(a) == nodesExplored->getNode(b)) {
+
+                    notExplored = false;
+                }
+            }
+
+            if (notExplored) {
+
+                currentNode = openList->getNode(a);
+            }   
+        }
+    }
+
+    return currentNode; 
 }

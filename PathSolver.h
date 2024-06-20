@@ -56,17 +56,24 @@ private:
     // Boolean to indicate if the goal is reached.
     bool goalReached;
 
-    // Checks a node to see if it's open.
-    void popOpenList(Env env, int x, int y, Node* goalNode);
+    // Populates a path list to check for valid travel nodes.
+    void popOpenList(Env env, int x, int y, Node* currentNode);
 
     // checks a node against the closed list.
-    bool checkNodeClosed(int x, int y);
+    bool checkNodeClosed(int x, int y, Node* currentNode);
 
     // Check for goal node.
     void setGoalReached(Env env, int x, int y);
 
-    // Forward search algorithm.
-    void forwardSearchAlg(Env env, Node* strat, Node* goal);
+    // Search forward through the maze to find G.
+    void findGoal(Env env, Node* strat, Node* goal);
+
+    // Search forward on a route. Returns a node that is closest on the
+    // route towards the goal.
+    Node* forwardSearchAlg(Node* currentNode, Node* goal);
+
+    // Backtrack robot if the path is a dead end.
+    Node* backTrack(Node* prevNode, Node* currNode);
 };
 
 #endif //COSC_ASSIGN_ONE_PATHSOLVER
