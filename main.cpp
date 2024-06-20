@@ -40,10 +40,10 @@ int main(int argc, char** argv){
     PathSolver* pathSolver = new PathSolver();
     pathSolver->forwardSearch(env);
 
-    /**
     NodeList* exploredPositions = nullptr;
     exploredPositions = pathSolver->getNodesExplored();
 
+    /**
     // Get the path
     // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 3
     NodeList* solution = pathSolver->getPath(env);
@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     printEnvStdout(env, solution);
     */
     delete pathSolver;
-    //delete exploredPositions;
+    delete exploredPositions;
     //delete solution;
    
 }

@@ -41,6 +41,8 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
 
     while (!goalReached) {
 
+        nodesExplored->addElement(start);
+
         prevNode = currentNode;
 
         x = currentNode->getRow();
@@ -57,14 +59,21 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
 
         // Robot back tracks if it encounters a dead end.
         currentNode = backTrack(prevNode, currentNode);
-        
-        // Current node is added to the nodes the robot has explored.
-        nodesExplored->addElement(currentNode);
 
-        std::cout << "Current node X: " << currentNode->getRow() << std::endl;
-        std::cout << "Current node Y: " << currentNode->getCol() << std::endl;
-        std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
-        std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
+        if (!goalReached) {
+                    
+            // Current node is added to the nodes the robot has explored.
+            nodesExplored->addElement(currentNode);
+            std::cout << "Current node X: " << currentNode->getRow() << std::endl;
+            std::cout << "Current node Y: " << currentNode->getCol() << std::endl;
+            std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
+            std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
+        } else {
+
+            // If goal reached, add goal to nodesExplored for back tracking.
+            nodesExplored->addElement(goal);
+            std::cout << "Conratulations, Goal Reached!" << std::endl;
+        }
     }
 }
 
@@ -77,8 +86,6 @@ void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
     if (envChar == SYMBOL_GOAL) {
 
         goalReached = true;
-
-        std::cout << "Conratulations, Goal Reached!" << std::endl;
 
     } else {
 
