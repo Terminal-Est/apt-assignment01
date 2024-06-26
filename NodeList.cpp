@@ -6,11 +6,15 @@ NodeList::NodeList(){
 }
 
 NodeList::~NodeList(){
-    //delete nodes;
+    // TODO
 }
 
 NodeList::NodeList(NodeList& other){
-    // TODO
+    
+    for (int i = 0; i < other.length; i++) {
+
+        nodes[i] = other.getNode(i);
+    }
 }
 
 int NodeList::getLength(){
@@ -22,7 +26,20 @@ void NodeList::addElement(Node* newPos){
     length++;
 }
 
+void NodeList::addElement(Node* newPos, int index){
+    nodes[index] = newPos;
+    length++;
+}
+
 Node* NodeList::getNode(int i){
     Node* node = nodes[i];
     return node;
+}
+
+void NodeList::deleteNodes(){
+
+    for (int i = 0; i < length; i++) {
+        delete nodes[i];
+        length--;
+    }
 }

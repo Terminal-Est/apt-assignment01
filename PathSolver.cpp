@@ -5,6 +5,8 @@
 PathSolver::PathSolver(){
     openList = new NodeList();
     nodesExplored = new NodeList();
+    startNode = new Node(0, 0, 0);
+    goalNode = new Node(0, 0, 0);
     goalReached = false;
 }
 
@@ -18,9 +20,8 @@ void PathSolver::forwardSearch(Env env){
     Coord end = getNodeParams(env, SYMBOL_GOAL);
     Coord start = getNodeParams(env, SYMBOL_START);
 
-    Node* startNode = new Node(start.x, start.y, 0);
-    Node* goalNode = new Node(end.x, end.y, 0);
-
+    startNode = new Node(start.x, start.y, 0);
+    goalNode = new Node(end.x, end.y, 0);
     currentNode = new Node(start.x, start.y, 0);
 
     openList->addElement(currentNode);
@@ -49,10 +50,10 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
         y = currentNode->getCol();
 
         // Robot looks around, adds open nodes to open list.
-        popOpenList(env, x + 1, y, currentNode);
-        popOpenList(env, x - 1, y, currentNode);
-        popOpenList(env, x, y + 1, currentNode);
-        popOpenList(env, x, y - 1, currentNode); 
+        lookAround(env, x, y, currentNode);
+
+        // Robot checks open list to see if it contains the goal node.
+        setGoalReached(env, currentNode);
 
         // Robot searches the open list and chooses a node to move to.
         currentNode = forwardSearchAlg(currentNode, goal);
@@ -68,6 +69,7 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
             std::cout << "Current node Y: " << currentNode->getCol() << std::endl;
             std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
             std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
+
         } else {
 
             // If goal reached, add goal to nodesExplored for back tracking.
@@ -83,40 +85,30 @@ void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
     bool closed = false;
     char envChar = env[x][y];
 
-    if (envChar == SYMBOL_GOAL) {
+    closed = checkNodeClosed(x, y, currentNode);
 
-        goalReached = true;
-
-    } else {
-
-        closed = checkNodeClosed(x, y, currentNode);
-
-        if(envChar == SYMBOL_EMPTY && !closed) {
-            
-            int trav = currentNode->getDistanceTraveled() + 1;
-            Node* open = new Node(x, y, trav);
-            openList->addElement(open);
-        }
+    if (envChar == SYMBOL_EMPTY && !closed) {
+        
+        int trav = currentNode->getDistanceTraveled() + 1;
+        Node* open = new Node(x, y, trav);
+        openList->addElement(open);
     }
 }
 
 Node* PathSolver::forwardSearchAlg(Node* currentNode, Node* goal){
 
-    int hold1 = 0;
-    int hold2 = 0;
+    Node* hold1 = new Node(0, 0, 0);
+    Node* hold2 = new Node(0, 0 ,0);
 
     for (int ind1 = 0; ind1 < openList->getLength(); ind1++) {
             
-        hold1 = openList->getNode(ind1)->getEstimatedDist2Goal(goal);
+        hold1 = openList->getNode(ind1);
 
         for (int ind2 = 0; ind2 < openList->getLength(); ind2++) {
 
-            hold2 = openList->getNode(ind2)->getEstimatedDist2Goal(goal);
+            hold2 = openList->getNode(ind2);
+            currentNode = compareDistToGoal(hold1, hold2, goal);
 
-            if (hold1 <= hold2) {
-
-                currentNode = openList->getNode(ind2);
-            }
         }
     }
 
@@ -211,9 +203,117 @@ bool PathSolver::checkNodeClosed(int x, int y, Node* currentNode){
     return closed;
 }
 
-void PathSolver::setGoalReached(Env env, int x, int y){
-    if (env[x][y] == SYMBOL_GOAL) {
+void PathSolver::setGoalReached(Env env, Node* currentNode){
+
+    if (env[currentNode->getRow()][currentNode->getCol() + 1] 
+        == SYMBOL_GOAL) {
+        goalReached = true;
+    }
+
+    if (env[currentNode->getRow()][currentNode->getCol() - 1] 
+        == SYMBOL_GOAL) {
+        goalReached = true;
+    }
+
+    if (env[currentNode->getRow() + 1][currentNode->getCol()] 
+        == SYMBOL_GOAL) {
+        goalReached = true;
+    }
+
+    if (env[currentNode->getRow() - 1][currentNode->getCol()] 
+        == SYMBOL_GOAL) {
         goalReached = true;
     }
 }
 
+bool checkOpenChar(Env env, Node* node){
+
+    bool isOpen = false;
+
+    if (env[node->getRow()][node->getCol()] == SYMBOL_EMPTY) {
+
+        isOpen = true;
+    }
+
+    return true;
+}
+
+NodeList* PathSolver::getPath(Env env){
+
+    // Create new NodeList.
+    int distTravelled = 0;
+    NodeList* path = new NodeList();
+
+    for (int i = nodesExplored->getLength(); i <= 0; i--) {
+
+        Node* node = nodesExplored->getNode(i);
+        // Node above current node.
+        Node* up = new Node(
+            node->getRow() + 1, 
+            node->getCol(), 
+            distTravelled);
+        // Node below current node.
+        Node* down = new Node(
+            node->getRow()-1, 
+            node->getCol(), 
+            distTravelled);
+        // Node to the left of current node.
+        Node* left = new Node(
+            node->getRow(), 
+            node->getCol() - 1, 
+            distTravelled);
+        // Node to the right of current node.
+        Node* right = new Node(
+            node->getRow(), 
+            node->getCol() + 1, 
+            distTravelled);
+
+        // Check the nodes surrounding the current node
+        // to see if they are open.
+        if (checkOpenChar(env, up)) {
+            node = compareDistToGoal(up, node, startNode);
+        }
+
+        if (checkOpenChar(env, down)) {
+            node = compareDistToGoal(up, node, startNode);
+        }
+
+        if (checkOpenChar(env, left)) {
+            node = compareDistToGoal(up, node, startNode);
+        }
+
+        if (checkOpenChar(env, right)) {
+            node = compareDistToGoal(up, node, startNode);
+        }
+
+        distTravelled++;
+        node->setDistanceTraveled(distTravelled);
+        path->addElement(node, i);
+    }
+
+    return path;
+}
+
+void PathSolver::lookAround(Env env, int x, int y, Node* currentNode){
+
+    popOpenList(env, x + 1, y, currentNode);
+    popOpenList(env, x - 1, y, currentNode);
+    popOpenList(env, x, y + 1, currentNode);
+    popOpenList(env, x, y - 1, currentNode); 
+}
+
+Node* PathSolver::compareDistToGoal(Node* nodeA, Node* nodeB, Node* goal){
+
+    Node* node = new Node(0 , 0, 0);
+
+    if (nodeA->getEstimatedDist2Goal(goal) <= nodeB->getEstimatedDist2Goal(goal)) {
+
+        node = nodeA;
+
+    } else {
+
+        node = nodeB;
+    }
+
+    return node;
+}

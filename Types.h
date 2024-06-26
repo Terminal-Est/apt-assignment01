@@ -22,5 +22,9 @@ typedef struct
 #define SYMBOL_EMPTY    '.'
 #define SYMBOL_GOAL     'G'
 #define SYMBOL_START    'S'
+#define SYMBOL_UP       '^'
+#define SYMBOL_DOWN     'V'
+#define SYMBOL_LEFT     '<'
+#define SYMBOL_RIGHT    '>'
 
 #endif // COSC_ASSIGN_ONE_TYPES

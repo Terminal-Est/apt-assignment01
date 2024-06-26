@@ -43,16 +43,16 @@ int main(int argc, char** argv){
     NodeList* exploredPositions = nullptr;
     exploredPositions = pathSolver->getNodesExplored();
 
-    /**
+ 
     // Get the path
     // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 3
     NodeList* solution = pathSolver->getPath(env);
 
-    printEnvStdout(env, solution);
-    */
+    //printEnvStdout(env, solution);
+
     delete pathSolver;
     delete exploredPositions;
-    //delete solution;
+    delete solution;
    
 }
 

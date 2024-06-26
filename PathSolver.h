@@ -53,6 +53,12 @@ private:
     // Node that the robot is currently on.
     Node* currentNode;
 
+    // Node at the start of the Maze. Designated by S char.
+    Node* startNode;
+
+    // Goal node of the Maze. Designated by G char.
+    Node* goalNode;
+
     // Boolean to indicate if the goal is reached.
     bool goalReached;
 
@@ -63,7 +69,7 @@ private:
     bool checkNodeClosed(int x, int y, Node* currentNode);
 
     // Check for goal node.
-    void setGoalReached(Env env, int x, int y);
+    void setGoalReached(Env env, Node* currentNode);
 
     // Search forward through the maze to find G.
     void findGoal(Env env, Node* strat, Node* goal);
@@ -73,7 +79,12 @@ private:
     Node* forwardSearchAlg(Node* currentNode, Node* goal);
 
     // Backtrack robot if the path is a dead end.
-    Node* backTrack(Node* prevNode, Node* currNode);
+    Node* backTrack(Node* prevNode, Node* currentNode);
+
+    // A function that instructs the robot to look at surrounding nodes.
+    void lookAround(Env env, int x, int y, Node* currentNode);
+
+    Node* compareDistToGoal(Node* nodeA, Node* nodeB, Node* goal);
 };
 
 #endif //COSC_ASSIGN_ONE_PATHSOLVER

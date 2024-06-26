@@ -30,6 +30,12 @@ public:
     /*                                           */
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
+
+    // Clears the node list.
+    void deleteNodes();
+
+    // Overload addElement, adds at secified index.
+    void addElement(Node* newNode, int index);
     
 private:
     /*                                           */
