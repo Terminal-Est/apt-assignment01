@@ -38,11 +38,11 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
     
     int x = 0;
     int y = 0;
-    Node* prevNode;
+    Node* prevNode = new Node(0 ,0, 0);
+
+    nodesExplored->addElement(start);
 
     while (!goalReached) {
-
-        nodesExplored->addElement(start);
 
         prevNode = currentNode;
 
@@ -61,22 +61,29 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
         // Robot back tracks if it encounters a dead end.
         currentNode = backTrack(prevNode, currentNode);
 
-        if (!goalReached) {
+        if (!goalReached && !currentNode->getOnBlockedPath()) {
                     
-            // Current node is added to the nodes the robot has explored.
+            setNodeDirectionChar(prevNode, currentNode);
             nodesExplored->addElement(currentNode);
-            std::cout << "Current node X: " << currentNode->getRow() << std::endl;
-            std::cout << "Current node Y: " << currentNode->getCol() << std::endl;
-            std::cout << "Dist to G: " << currentNode->getEstimatedDist2Goal(goal) << std::endl;  
-            std::cout << "Dist travelled: " << currentNode->getDistanceTraveled() << std::endl;
 
         } else {
 
             // If goal reached, add goal to nodesExplored for back tracking.
+            nodesExplored->addElement(currentNode);
             nodesExplored->addElement(goal);
+            currentNode = goal;
+            setNodeDirectionChar(prevNode, currentNode);
             std::cout << "Conratulations, Goal Reached!" << std::endl;
         }
     }
+}
+
+void PathSolver::lookAround(Env env, int x, int y, Node* currentNode){
+
+    popOpenList(env, x + 1, y, currentNode);
+    popOpenList(env, x - 1, y, currentNode);
+    popOpenList(env, x, y + 1, currentNode);
+    popOpenList(env, x, y - 1, currentNode); 
 }
 
 void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
@@ -85,13 +92,26 @@ void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
     bool closed = false;
     char envChar = env[x][y];
 
-    closed = checkNodeClosed(x, y, currentNode);
+    closed = checkNodeClosed(x, y);
 
     if (envChar == SYMBOL_EMPTY && !closed) {
         
         int trav = currentNode->getDistanceTraveled() + 1;
         Node* open = new Node(x, y, trav);
         openList->addElement(open);
+    }
+}
+
+void PathSolver::setNodeDirectionChar(Node* toSet, Node* currentNode){
+
+    if (toSet->getRow() < currentNode->getRow()) {
+        toSet->setDirectionMoved(SYMBOL_RIGHT);
+    } else if (toSet->getRow() > currentNode->getRow()) {
+        toSet->setDirectionMoved(SYMBOL_LEFT);
+    } else if (toSet->getCol() > currentNode->getCol()) {
+        toSet->setDirectionMoved(SYMBOL_UP);
+    } else if (toSet->getCol() < currentNode->getCol()) {
+        toSet->setDirectionMoved(SYMBOL_DOWN);
     }
 }
 
@@ -108,7 +128,6 @@ Node* PathSolver::forwardSearchAlg(Node* currentNode, Node* goal){
 
             hold2 = openList->getNode(ind2);
             currentNode = compareDistToGoal(hold1, hold2, goal);
-
         }
     }
 
@@ -117,13 +136,21 @@ Node* PathSolver::forwardSearchAlg(Node* currentNode, Node* goal){
 
 Node* PathSolver::backTrack(Node* prevNode, Node* currentNode) {
 
+    // Robot checks it's current node address aganst the previous.
+    // If the address is the same, a blocked path is assumed and 
+    // a backtrack is triggered.
     if (prevNode->getRow() == currentNode->getRow()
         && prevNode->getCol() == currentNode->getCol() 
         && !goalReached) {
-            
-        bool notExplored = true;
+        
+        bool notExplored = false;
+
         std::cout << "Dead end, backtracking...." << std::endl;
         
+        // Robot checks the openlist against the explored list
+        // until it finds a node in the open list it hasn't 
+        // explored, it will then set its current node to the 
+        // unexplored node.
         for (int a = 0; a < openList->getLength(); a++) {
 
             notExplored = true;
@@ -131,14 +158,24 @@ Node* PathSolver::backTrack(Node* prevNode, Node* currentNode) {
             for (int b = 0; b < nodesExplored->getLength(); b++) {
 
                 if (openList->getNode(a) == nodesExplored->getNode(b)) {
-
+                    
                     notExplored = false;
                 }
             }
 
-            if (notExplored) {
+            // Robot marks nodes along the backtracked path as blocked.
+            if (a != 0 && notExplored) {
 
-                currentNode = openList->getNode(a);
+                int set = a;
+
+                while (set < nodesExplored->getLength()) {
+
+                    nodesExplored->getNode(set)->setOnBlockedPath(true);
+                    set++;    
+                }
+
+                // Set current node to the next free on the open list.
+                currentNode = openList->getNode(a - 1);
             }   
         }
     }
@@ -180,7 +217,7 @@ Coord PathSolver::getNodeParams(Env env, char loc){
     return node;
 }
 
-bool PathSolver::checkNodeClosed(int x, int y, Node* currentNode){
+bool PathSolver::checkNodeClosed(int x, int y){
 
     int ind = 0;
     bool closed = false;
@@ -235,76 +272,48 @@ bool checkOpenChar(Env env, Node* node){
         isOpen = true;
     }
 
-    return true;
+    return isOpen;
 }
 
 NodeList* PathSolver::getPath(Env env){
 
-    // Create new NodeList.
-    int distTravelled = 0;
+    int expLen = nodesExplored->getLength() - 1;
     NodeList* path = new NodeList();
 
-    for (int i = nodesExplored->getLength(); i <= 0; i--) {
+    for (int i = 2; i < expLen; i++) {
 
-        Node* node = nodesExplored->getNode(i);
-        // Node above current node.
-        Node* up = new Node(
-            node->getRow() + 1, 
-            node->getCol(), 
-            distTravelled);
-        // Node below current node.
-        Node* down = new Node(
-            node->getRow()-1, 
-            node->getCol(), 
-            distTravelled);
-        // Node to the left of current node.
-        Node* left = new Node(
-            node->getRow(), 
-            node->getCol() - 1, 
-            distTravelled);
-        // Node to the right of current node.
-        Node* right = new Node(
-            node->getRow(), 
-            node->getCol() + 1, 
-            distTravelled);
+        Node* first = nodesExplored->getNode(i);
+        Node* next = nodesExplored->getNode(i - 1);
+        Node* node = compareDistTrav(first, next);
 
-        // Check the nodes surrounding the current node
-        // to see if they are open.
-        if (checkOpenChar(env, up)) {
-            node = compareDistToGoal(up, node, startNode);
+        if (!node->getOnBlockedPath()) {
+
+            path->addElement(node);
         }
-
-        if (checkOpenChar(env, down)) {
-            node = compareDistToGoal(up, node, startNode);
-        }
-
-        if (checkOpenChar(env, left)) {
-            node = compareDistToGoal(up, node, startNode);
-        }
-
-        if (checkOpenChar(env, right)) {
-            node = compareDistToGoal(up, node, startNode);
-        }
-
-        distTravelled++;
-        node->setDistanceTraveled(distTravelled);
-        path->addElement(node, i);
     }
 
     return path;
 }
 
-void PathSolver::lookAround(Env env, int x, int y, Node* currentNode){
+Node* PathSolver::compareDistTrav(Node* nodeA, Node* nodeB){
 
-    popOpenList(env, x + 1, y, currentNode);
-    popOpenList(env, x - 1, y, currentNode);
-    popOpenList(env, x, y + 1, currentNode);
-    popOpenList(env, x, y - 1, currentNode); 
+    Node* node = new Node(0, 0, 0);
+
+    if (nodeA->getDistanceTraveled() < nodeB->getDistanceTraveled()) {
+
+        node = nodeA;
+
+    } else {
+
+        node = nodeB;
+    }
+
+    return node;
 }
 
 Node* PathSolver::compareDistToGoal(Node* nodeA, Node* nodeB, Node* goal){
 
-    Node* node = new Node(0 , 0, 0);
+    Node* node = new Node(0, 0, 0);
 
     if (nodeA->getEstimatedDist2Goal(goal) <= nodeB->getEstimatedDist2Goal(goal)) {
 

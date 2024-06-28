@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     //std::cout << "TESTING - COMMENT THE OUT TESTING BEFORE YOU SUBMIT!!!" << std::endl;
     //testNode();
     //testNodeList();
-    std::cout << "ROBOT PATHING ALGORITHM" << std::endl << std::endl;
+    std::cout << "ROBOT PATHING PROGRAM!" << std::endl << std::endl;
 
     // Load Environment 
     Env env;
@@ -48,12 +48,11 @@ int main(int argc, char** argv){
     // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 3
     NodeList* solution = pathSolver->getPath(env);
 
-    //printEnvStdout(env, solution);
+    printEnvStdout(env, solution);
 
     delete pathSolver;
     delete exploredPositions;
     delete solution;
-   
 }
 
 void readEnvStdin(Env env){
@@ -72,13 +71,37 @@ void readEnvStdin(Env env){
             env[x][y] = chrLnArr[x];
             std::cout << env[x][y];
         }
+
         std::cout << std::endl;
         y++;
     }
 }
 
 void printEnvStdout(Env env, NodeList* solution) {
-    //TODO
+
+    int x = 0;
+    int y = 0;
+
+    for (int i = 0; i < solution->getLength(); i++){
+
+        Node* node = solution->getNode(i);
+        env[node->getRow()][node->getCol()] = node->getDirectionMoved();
+
+    }
+
+    while (y < ENV_DIM) {
+
+        x = 0;
+
+        while (x < ENV_DIM) {
+
+            std::cout << env[x][y];
+            x++;
+        }
+
+        std::cout << std::endl;
+        y++;
+    }
 }
 
 void testNode() {

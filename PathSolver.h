@@ -62,11 +62,14 @@ private:
     // Boolean to indicate if the goal is reached.
     bool goalReached;
 
+    // A general use holding node.
+    Node* holding;
+
     // Populates a path list to check for valid travel nodes.
     void popOpenList(Env env, int x, int y, Node* currentNode);
 
     // checks a node against the closed list.
-    bool checkNodeClosed(int x, int y, Node* currentNode);
+    bool checkNodeClosed(int x, int y);
 
     // Check for goal node.
     void setGoalReached(Env env, Node* currentNode);
@@ -81,10 +84,17 @@ private:
     // Backtrack robot if the path is a dead end.
     Node* backTrack(Node* prevNode, Node* currentNode);
 
-    // A function that instructs the robot to look at surrounding nodes.
+    // Instructs the robot to look at surrounding nodes.
     void lookAround(Env env, int x, int y, Node* currentNode);
 
+    // Compare two nodes and return the node that is closest to the goal.
+    Node* compareDistTrav(Node* nodeA, Node* nodeB);
+
+    // Compare two nodes and return the node that is closest to the goal.
     Node* compareDistToGoal(Node* nodeA, Node* nodeB, Node* goal);
+
+    // Sets the character which represents the direction travelled by the robot.
+    void setNodeDirectionChar(Node* toSet, Node* currentNode);
 };
 
 #endif //COSC_ASSIGN_ONE_PATHSOLVER

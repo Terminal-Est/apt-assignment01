@@ -23,7 +23,7 @@ typedef struct
 #define SYMBOL_GOAL     'G'
 #define SYMBOL_START    'S'
 #define SYMBOL_UP       '^'
-#define SYMBOL_DOWN     'V'
+#define SYMBOL_DOWN     'v'
 #define SYMBOL_LEFT     '<'
 #define SYMBOL_RIGHT    '>'
 

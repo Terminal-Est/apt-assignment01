@@ -30,6 +30,15 @@ public:
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
 
+    // Setter for on blocked path bool.
+    void setOnBlockedPath(bool blocked);
+
+    // Getter for on blocked path bool.
+    bool getOnBlockedPath();
+
+    void setDirectionMoved(char dir);
+
+    char getDirectionMoved();
 
 private:
     /*                                           */
@@ -44,7 +53,11 @@ private:
     /* YOU MAY ADD YOUR MODIFICATIONS HERE       */
     /*                                           */
 
-    char direction_moved;
+    // The direction in which the robot travelled from this node.
+    char directionMoved;
+
+    // Boolean to indicate that this node is on a blocked path.
+    bool onNoPath;
 };
 
 #endif //COSC_ASSIGN_ONE_NODE
