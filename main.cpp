@@ -57,7 +57,7 @@ int main(int argc, char** argv){
 
 void readEnvStdin(Env env){
 
-    std::ifstream file("sampleTest/Test4.env");
+    std::ifstream file("sampleTest/Test1.env");
     std::string line = "";
     int y = 0;
 
