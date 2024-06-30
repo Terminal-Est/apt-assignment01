@@ -84,7 +84,7 @@ private:
     // Backtrack robot if the path is a dead end.
     Node* backTrack(Node* prevNode, Node* currentNode);
 
-    // Instructs the robot to look at surrounding nodes.
+    // Helper function for popOpenList.
     void lookAround(Env env, int x, int y, Node* currentNode);
 
     // Compare two nodes and return the node that is closest to the goal.

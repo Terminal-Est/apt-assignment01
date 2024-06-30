@@ -36,8 +36,10 @@ public:
     // Getter for on blocked path bool.
     bool getOnBlockedPath();
 
+    // Setter for direction moved char.
     void setDirectionMoved(char dir);
 
+    // Getter for direction moved char.
     char getDirectionMoved();
 
 private:

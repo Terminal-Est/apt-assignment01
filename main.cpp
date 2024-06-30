@@ -14,14 +14,13 @@ void testNode();
 void testNodeList();
 
 // Read a environment from standard input.
-void readEnvStdin(Env env);
+void readEnvStdin(Env env, std::string fname);
 
 // Print out a Environment to standard output with path.
 // To be implemented for Milestone 3
 void printEnvStdout(Env env, NodeList* solution);
 
-
-int main(int argc, char** argv){
+int main(int argc, char* argv[]){
     // THESE ARE SOME EXAMPLE FUNCTIONS TO HELP TEST YOUR CODE
     // AS YOU WORK ON MILESTONE 2. YOU CAN UPDATE THEM YOURSELF
     // AS YOU GO ALONG.
@@ -29,43 +28,68 @@ int main(int argc, char** argv){
     //std::cout << "TESTING - COMMENT THE OUT TESTING BEFORE YOU SUBMIT!!!" << std::endl;
     //testNode();
     //testNodeList();
+
+    // will print out results of the path file passed as the first arg.   
+    std::string fname = "";
+
+    if (argc > 1) {
+        fname = argv[1];
+    }
+ 
     std::cout << "ROBOT PATHING PROGRAM!" << std::endl << std::endl;
 
     // Load Environment 
     Env env;
-    readEnvStdin(env);
+
+    if (fname != "") {
+
+         readEnvStdin(env, fname);
     
-    // Solve using forwardSearch
-    // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 2
-    PathSolver* pathSolver = new PathSolver();
-    pathSolver->forwardSearch(env);
+        // Solve using forwardSearch
+        // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 2
+        PathSolver* pathSolver = new PathSolver();
+        pathSolver->forwardSearch(env);
 
-    NodeList* exploredPositions = nullptr;
-    exploredPositions = pathSolver->getNodesExplored();
+        NodeList* exploredPositions = nullptr;
+        exploredPositions = pathSolver->getNodesExplored();
 
- 
-    // Get the path
-    // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 3
-    NodeList* solution = pathSolver->getPath(env);
+    
+        // Get the path
+        // THIS WILL ONLY WORK IF YOU'VE FINISHED MILESTONE 3
+        NodeList* solution = pathSolver->getPath(env);
 
-    printEnvStdout(env, solution);
+        printEnvStdout(env, solution);
 
-    delete pathSolver;
-    delete exploredPositions;
-    delete solution;
+        delete pathSolver;
+        delete exploredPositions;
+        delete solution;
+
+    } else {
+
+        std::cout << "Please enter file name as Argument" << std::endl;
+
+    }
+
+    return EXIT_SUCCESS;
 }
 
-void readEnvStdin(Env env){
+// Read a the input file from the fname supplied as arg.
+void readEnvStdin(Env env, std::string fname){
 
-    std::ifstream file("sampleTest/Test1.env");
+    std::ifstream file("sampleTest/" + fname + ".env");
     std::string line = "";
     int y = 0;
 
+    // Loop through the file line by line and read in each
+    // line as a string.
     while (std::getline(file, line)) {
         
+        // Copy line string into character array.
         char chrLnArr[ENV_DIM + 1];
         std::strcpy(chrLnArr, line.c_str());
 
+        // Loop through char array and print out the environment
+        // to console.
         for (int x = 0; x < (int)sizeof(chrLnArr) - 1; x++) {
        
             env[x][y] = chrLnArr[x];
@@ -77,18 +101,25 @@ void readEnvStdin(Env env){
     }
 }
 
+// Loop through the environment and overlay the solution.
 void printEnvStdout(Env env, NodeList* solution) {
 
     int x = 0;
     int y = 0;
 
+    // Set a space first.
+    std::cout << std::endl;
+
     for (int i = 0; i < solution->getLength(); i++){
 
+        // Set node pointer to solution node i
         Node* node = solution->getNode(i);
+        // 
         env[node->getRow()][node->getCol()] = node->getDirectionMoved();
 
     }
 
+    // Print out solution.
     while (y < ENV_DIM) {
 
         x = 0;

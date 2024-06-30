@@ -20,17 +20,23 @@ void PathSolver::forwardSearch(Env env){
     Coord end = getNodeParams(env, SYMBOL_GOAL);
     Coord start = getNodeParams(env, SYMBOL_START);
 
+    // Get the start and end points of the maze.
     startNode = new Node(start.x, start.y, 0);
     goalNode = new Node(end.x, end.y, 0);
+
+    // Set current node to start node.
     currentNode = new Node(start.x, start.y, 0);
 
+    // Add the start node to the open list.
     openList->addElement(currentNode);
 
+    // Print out maze starting info.
     std::cout << std::endl;
     std::cout << "Start Coordinates: " << start.x << "," << start.y << std::endl;
     std::cout << "Goal Coordinates: " << end.x << "," << end.y << std::endl;
     std::cout << "Distance to Goal: " << startNode->getEstimatedDist2Goal(goalNode) << std::endl;
 
+    // Call the find goal algorithm.
     findGoal(env, startNode, goalNode);
 }
 
@@ -38,12 +44,16 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
     
     int x = 0;
     int y = 0;
+
+    // Create a node to store the node previously visted.
     Node* prevNode = new Node(0 ,0, 0);
 
+    // Add the start node to the nodes we have explored.
     nodesExplored->addElement(start);
 
     while (!goalReached) {
 
+        // set the previous node to the current node.
         prevNode = currentNode;
 
         x = currentNode->getRow();
@@ -61,8 +71,11 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
         // Robot back tracks if it encounters a dead end.
         currentNode = backTrack(prevNode, currentNode);
 
+        // If the robot is hasn't reached the goal and the node is not on 
+        // a blocked path, add it to the explored list.
         if (!goalReached && !currentNode->getOnBlockedPath()) {
-                    
+
+            // Set the node direction char for later printing.        
             setNodeDirectionChar(prevNode, currentNode);
             nodesExplored->addElement(currentNode);
 
@@ -79,7 +92,8 @@ void PathSolver::findGoal(Env env, Node* start, Node* goal){
 }
 
 void PathSolver::lookAround(Env env, int x, int y, Node* currentNode){
-
+    
+    // Look at each node surrounding the current node.
     popOpenList(env, x + 1, y, currentNode);
     popOpenList(env, x - 1, y, currentNode);
     popOpenList(env, x, y + 1, currentNode);
@@ -92,8 +106,11 @@ void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
     bool closed = false;
     char envChar = env[x][y];
 
+    // Returns false if the node searched is not closed.
     closed = checkNodeClosed(x, y);
 
+    // If the node is '.' and not closed, add it to the
+    // open list.
     if (envChar == SYMBOL_EMPTY && !closed) {
         
         int trav = currentNode->getDistanceTraveled() + 1;
@@ -104,13 +121,21 @@ void PathSolver::popOpenList(Env env, int x, int y, Node* currentNode){
 
 void PathSolver::setNodeDirectionChar(Node* toSet, Node* currentNode){
 
+    // Switcher IF to set node direction moved.
     if (toSet->getRow() < currentNode->getRow()) {
+
         toSet->setDirectionMoved(SYMBOL_RIGHT);
+
     } else if (toSet->getRow() > currentNode->getRow()) {
+
         toSet->setDirectionMoved(SYMBOL_LEFT);
+
     } else if (toSet->getCol() > currentNode->getCol()) {
+
         toSet->setDirectionMoved(SYMBOL_UP);
+
     } else if (toSet->getCol() < currentNode->getCol()) {
+
         toSet->setDirectionMoved(SYMBOL_DOWN);
     }
 }
@@ -120,6 +145,8 @@ Node* PathSolver::forwardSearchAlg(Node* currentNode, Node* goal){
     Node* hold1 = new Node(0, 0, 0);
     Node* hold2 = new Node(0, 0 ,0);
 
+    // Compares all open list nodes against each other and returns
+    // the node closest to the goal node.
     for (int ind1 = 0; ind1 < openList->getLength(); ind1++) {
             
         hold1 = openList->getNode(ind1);
@@ -187,6 +214,7 @@ NodeList* PathSolver::getNodesExplored(){
 
     NodeList* copy = new NodeList();
 
+    // Creat a deep copy of nodes explored.
     for (int i = 0; i < nodesExplored->getLength(); i++) {
         Node* node = nodesExplored->getNode(i);
         copy->addElement(node);
@@ -202,6 +230,7 @@ Coord PathSolver::getNodeParams(Env env, char loc){
     int dist = 0;
     Coord node;
 
+    // Return a Coord based on the node char.
     for (int x = 0; x <= xSize; x++) {
 
         for (int y = 0; y <= ySize; y++) {
@@ -222,6 +251,8 @@ bool PathSolver::checkNodeClosed(int x, int y){
     int ind = 0;
     bool closed = false;
 
+    // Search the nodes explored against the supplied
+    // x,y return true if the node exists in the list.
     while (ind < nodesExplored->getLength()) {
 
         Coord exist;
@@ -242,6 +273,8 @@ bool PathSolver::checkNodeClosed(int x, int y){
 
 void PathSolver::setGoalReached(Env env, Node* currentNode){
 
+    // IF network for checking if the current node is near 
+    // the goal.
     if (env[currentNode->getRow()][currentNode->getCol() + 1] 
         == SYMBOL_GOAL) {
         goalReached = true;
@@ -261,18 +294,6 @@ void PathSolver::setGoalReached(Env env, Node* currentNode){
         == SYMBOL_GOAL) {
         goalReached = true;
     }
-}
-
-bool checkOpenChar(Env env, Node* node){
-
-    bool isOpen = false;
-
-    if (env[node->getRow()][node->getCol()] == SYMBOL_EMPTY) {
-
-        isOpen = true;
-    }
-
-    return isOpen;
 }
 
 NodeList* PathSolver::getPath(Env env){
